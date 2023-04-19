@@ -28,6 +28,7 @@ def test_is_pref_file_allowed_characters(tmpdir):
 
     wrong_characters.write_text("!@#$%^&*()", encoding="utf-8")
     correct_characters.write_text("iuahsduhaduhad", encoding="utf-8")
+    no_characters.write_text("", encoding="utf-8")
 
     wrong_characters, correct_characters, no_characters = (
         Path(wrong_characters),
