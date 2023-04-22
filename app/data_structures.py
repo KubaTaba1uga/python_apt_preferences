@@ -1,10 +1,12 @@
-# from dataclasses import dataclass
+from dataclasses import dataclass
+from pathlib import Path
 
 
-# @dataclass
-# class Pre:
-#     """Class for keeping track of an item in inventory."""
+@dataclass
+class AptPreference:
+    """Represent preference entry. """
 
-#     name: str
-#     unit_price: float
-#     quantity_on_hand: int = 0
+    package: str
+    pin: str
+    pin_priority: int
+    file_path: Path
