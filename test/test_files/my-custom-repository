@@ -1,0 +1,9 @@
+# Never prefer packages from the my-custom-repo repository
+Package: *
+Pin: origin my.custom.repo.url
+Pin-Priority: 1
+
+# Allow upgrading only my-specific-software from my-custom-repo
+Package: my-specific-software
+Pin: origin my.custom.repo.url
+Pin-Priority: 500
