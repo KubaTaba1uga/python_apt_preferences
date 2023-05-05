@@ -16,9 +16,11 @@ _APT_PREF_DIR_PATH_S: str = _APT_PREF_FILE_PATH_S + ".d"
 def find_pref_files() -> typing.List[Path]:
     """ Find paths to files used by APT to set up preferences. """
 
-    pref_files_paths: typing.List[Path] = [_get_default_pref_file_path()]
+    pref_files_paths: typing.List[Path] = []
 
-    for file_name in _get_default_pref_dir_path().rglob("*"):
+    for file_name in list(_get_default_pref_dir_path().rglob("*")) + [
+        _get_default_pref_file_path()
+    ]:
         file_path = Path(file_name)
 
         if is_pref_file(file_path) is True:
@@ -29,7 +31,12 @@ def find_pref_files() -> typing.List[Path]:
 
 def _get_default_pref_file_path() -> Path:
     """ The APT preferences file '/etc/apt/preferences'. """
-    return Path(_APT_PREF_FILE_PATH_S)
+    default_pref_file = Path(_APT_PREF_FILE_PATH_S)
+
+    if default_pref_file.exists() is False:
+        raise FileNotFoundError(default_pref_file)
+
+    return default_pref_file
 
 
 def _get_default_pref_dir_path() -> Path:
@@ -50,12 +57,17 @@ def is_pref_file(path: Path) -> bool:
         ".",
     ]
 
-    file_extension, file_content = path.suffix, path.read_text()
+    file_extension, file_name = path.suffix, path.name
+
+    file_name = file_name.replace(file_extension, "")
+
+    if len(file_name) == 0:
+        return False
 
     if file_extension not in allowed_extensions:
         return False
 
-    for character in file_content:
+    for character in file_name:
         if character not in allowed_characters:
             return False
 
