@@ -1,12 +1,14 @@
-from dataclasses import dataclass
+import typing
+from dataclasses import dataclass, field
 from pathlib import Path
 
 
 @dataclass
 class AptPreference:
-    """Represent preference entry. """
+    """Represents preference entry. """
 
     package: str
     pin: str
     pin_priority: int
-    file_path: Path
+    explanations: typing.Dict[str, typing.List[str]] = field(default_factory=dict)
+    file_path: typing.Optional[Path] = None
