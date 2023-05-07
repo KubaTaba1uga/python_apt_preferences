@@ -18,15 +18,19 @@ def find_pref_files() -> typing.List[Path]:
 
     pref_files_paths: typing.List[Path] = []
 
-    for file_name in list(_get_default_pref_dir_path().rglob("*")) + [
-        _get_default_pref_file_path()
-    ]:
+    for file_name in _list_possible_pref_files():
         file_path = Path(file_name)
 
         if is_pref_file(file_path) is True:
             pref_files_paths.append(file_path)
 
     return pref_files_paths
+
+
+def _list_possible_pref_files():
+    all_preferences_d_files = list(_get_default_pref_dir_path().rglob("*"))
+
+    return all_preferences_d_files + [_get_default_pref_file_path()]
 
 
 def _get_default_pref_file_path() -> Path:

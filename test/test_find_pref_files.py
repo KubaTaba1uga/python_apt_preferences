@@ -6,7 +6,7 @@ import pytest
 from app.find_pref_files import is_pref_file
 from app.find_pref_files import find_pref_files
 
-0
+
 from test.utils import process_files_map
 
 

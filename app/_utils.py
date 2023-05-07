@@ -25,3 +25,9 @@ def get_function_name():
         raise ValueError(current_stack)
 
     return current_stack[3]
+
+
+def get_function_parameters_names(function) -> set:
+    function_signature = inspect.signature(function)
+    function_parameters = function_signature.parameters
+    return set(function_parameters)

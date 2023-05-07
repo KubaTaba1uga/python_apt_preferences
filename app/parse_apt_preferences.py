@@ -8,19 +8,14 @@ from lark import Transformer
 from lark import v_args
 
 from app.data_structures import AptPreference
-from app.utils import read_file
-from app.utils import copy_obj
-from app.utils import get_function_name
+from app._utils import read_file
+from app._utils import copy_obj
+from app._utils import get_function_name
+from app._utils import get_function_parameters_names
 from app.errors import NoPreferencesFound
 from app.find_pref_files import find_pref_files
-
-_EXPLANATIONS_FIELD_ID = "explanations"
-
-_PARENT_DIR_PATH = Path(__file__).parent
-
-LARK_GRAMMAR_PATH = _PARENT_DIR_PATH.joinpath("apt_preferences.lark")
-
-LARK_GRAMMAR = read_file(LARK_GRAMMAR_PATH)
+from app._constants import LARK_GRAMMAR
+from app._constants import EXPLANATIONS_FIELD_NAME
 
 
 def parse_apt_preferences() -> typing.List[typing.Union[AptPreference, str]]:
@@ -60,25 +55,15 @@ def parse_apt_preferences_file(
 
 def _populate_preferences_paths(preferences_l, file_path):
     for preference in preferences_l:
-        if isinstance(preference, AptPreference) is True:
-            preference.file_path: Path = copy_obj(file_path)
+        preference.file_path: Path = copy_obj(file_path)
 
 
-def _create_lark_parser():
-    return Lark(
-        LARK_GRAMMAR,
-        parser="lalr",
-        lexer="contextual",  # <- contextual lexer is required to resolve priorities
-        propagate_positions=False,  # <- improve speed
-        maybe_placeholders=False,  # <- improve speed
-        transformer=PreferencesTreeTransformer(),  # <- improve speed
-    )
-
-
-def add_explanations_to_field(func):
+def _add_explanations_to_rule(func):
     @functools.wraps(func)
     def wrapped_func(_, rule_l) -> dict:
-        explanations_exist, rule_is_valid = len(rule_l) == 2, len(rule_l) in (1, 2)
+        explanations_exist, rule_is_valid = _explanations_exist(rule_l), _rule_is_valid(
+            rule_l
+        )
 
         if rule_is_valid is False:
             raise ValueError(rule_l)
@@ -88,28 +73,19 @@ def add_explanations_to_field(func):
         func_result: dict = func(_, rule_value)
 
         if explanations_exist is True:
-            func_result[_EXPLANATIONS_FIELD_ID] = rule_l.pop()
+            func_result[EXPLANATIONS_FIELD_NAME] = rule_l.pop()
 
         return func_result
 
     return wrapped_func
 
 
-def _add_explenations_to_kwargs(l, kwargs):
-    for value_d in l:
-        field_name = _find_field_name(value_d)
-
-        kwargs[field_name] = value_d[field_name]
-
-        if value_d.get(_EXPLANATIONS_FIELD_ID) is not None:
-            kwargs[_EXPLANATIONS_FIELD_ID][field_name] = value_d[_EXPLANATIONS_FIELD_ID]
+def _explanations_exist(rule_l) -> bool:
+    return len(rule_l) == 2
 
 
-def _find_field_name(value_d):
-    for field in value_d.keys():
-        if field != _EXPLANATIONS_FIELD_ID:
-            return field
-    raise NotImplementedError(value_d)
+def _rule_is_valid(rule_l) -> bool:
+    return len(rule_l) == 1 or _explanations_exist(rule_l)
 
 
 class PreferencesTreeTransformer(Transformer):
@@ -120,15 +96,15 @@ class PreferencesTreeTransformer(Transformer):
     preferences_l = list
     explanations_l = list
 
-    @add_explanations_to_field
+    @_add_explanations_to_rule
     def pin(self, s) -> typing.Dict[str, str]:
         return {get_function_name(): s}
 
-    @add_explanations_to_field
+    @_add_explanations_to_rule
     def package(self, s) -> typing.Dict[str, str]:
         return {get_function_name(): s}
 
-    @add_explanations_to_field
+    @_add_explanations_to_rule
     def pin_priority(self, i) -> typing.Dict[str, int]:
         return {get_function_name(): i}
 
@@ -142,17 +118,56 @@ class PreferencesTreeTransformer(Transformer):
         if len(l) == 0:
             raise NoPreferencesFound()
 
-        kwargs = {_EXPLANATIONS_FIELD_ID: {}}
+        kwargs = {EXPLANATIONS_FIELD_NAME: {}}
 
         _add_explenations_to_kwargs(l, kwargs)
 
-        # one for each field in AptPreference
-        kwargs_are_valid = len(kwargs.keys()) == 4
+        kwargs_are_valid = _kwargs_are_valid(kwargs)
 
         if kwargs_are_valid is False:
             raise ValueError(kwargs)
 
         return AptPreference(**kwargs)
+
+
+def _add_explenations_to_kwargs(l, kwargs):
+    for value_d in l:
+        field_name = _find_field_name(value_d)
+
+        kwargs[field_name] = value_d[field_name]
+
+        if value_d.get(EXPLANATIONS_FIELD_NAME) is not None:
+            kwargs[EXPLANATIONS_FIELD_NAME][field_name] = value_d[
+                EXPLANATIONS_FIELD_NAME
+            ]
+
+
+def _find_field_name(value_d):
+    for field in value_d.keys():
+        if field != EXPLANATIONS_FIELD_NAME:
+            return field
+    raise NotImplementedError(value_d)
+
+
+def _kwargs_are_valid(kwargs) -> bool:
+    not_mapped_fields_names = set(["self", "file_path"])
+
+    mapped_fields_names: set = get_function_parameters_names(
+        AptPreference.__init__
+    ).difference(not_mapped_fields_names)
+
+    return set(kwargs.keys()) == set(mapped_fields_names)
+
+
+def _create_lark_parser():
+    return Lark(
+        LARK_GRAMMAR,
+        parser="lalr",
+        lexer="contextual",  # <- contextual lexer is required to resolve priorities
+        propagate_positions=False,  # <- improve speed
+        maybe_placeholders=False,  # <- improve speed
+        transformer=PreferencesTreeTransformer(),  # <- improve speed
+    )
 
 
 _parser = _create_lark_parser()
