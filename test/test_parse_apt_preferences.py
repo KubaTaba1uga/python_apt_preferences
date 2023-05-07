@@ -431,7 +431,7 @@ def test_parse_apt_preference_comments(tmp_path, str_to_parse, expected_obj):
 @pytest.mark.parametrize(
     ("str_to_parse", "expected_objs_l"),
     [
-        # do not inject tests between start
+        # `do not inject tests between` start
         pytest.param(
             """Explanation: dadada nananana
                Package: my-custom-package
@@ -505,7 +505,7 @@ def test_parse_apt_preference_comments(tmp_path, str_to_parse, expected_obj):
             ],
             id="previous examples combined",
         ),
-        # do not inject tests between end
+        # `do not inject tests between` end
     ],
 )
 def test_parse_apt_preference_explanation(tmp_path, str_to_parse, expected_objs_l):

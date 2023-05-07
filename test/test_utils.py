@@ -1,9 +1,9 @@
 from pathlib import Path
 
 from app.data_structures import AptPreference
-from app.utils import copy_obj
-from app.utils import read_file
-from app.utils import get_function_name
+from app._utils import copy_obj
+from app._utils import read_file
+from app._utils import get_function_name
 
 
 def test_read_file(tmp_path):
