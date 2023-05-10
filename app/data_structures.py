@@ -7,6 +7,8 @@ from pathlib import Path
 class AptPreference:
     """Represents preference entry. """
 
+    FILE_PATH_NONE_FIELD_NAME = "no path"
+
     package: str
     pin: str
     pin_priority: int

@@ -14,12 +14,12 @@ FIELD_TO_SNIPPET_MAP = {
     "package": "Package: {value}",
     "pin": "Pin: {value}",
     "pin_priority": "Pin priority: {value}",
-    "explanation": "Explanation: {value}",
+    EXPLANATIONS_FIELD_NAME: "Explanation: {value}",
 }
 
 DELIMETER = "\n"
 
-FIELDS_NOT_TO_RENDER = ["explanation"]
+FIELDS_NOT_TO_RENDER = [EXPLANATIONS_FIELD_NAME]
 
 FIELDS_TO_RENDER = [
     field_name

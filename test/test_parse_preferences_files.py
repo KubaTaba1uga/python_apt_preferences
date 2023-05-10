@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from app.parse_apt_preferences import parse_apt_preferences
-from app.parse_apt_preferences import parse_apt_preferences_file
+from app.parse_preferences_files import parse_preferences_files
+from app.parse_preferences_files import parse_preferences_file
 from app.data_structures import AptPreference
 from app.errors import NoPreferencesFound
 
@@ -69,7 +69,7 @@ _PARENT_DIR_PATH = Path(__file__).parent
 def test_parse_apt_preference_order_no_error(tmp_path, str_to_parse):
     pref_file_p: Path = _create_apt_preferences_file(tmp_path, str_to_parse)
     # parsed without error
-    parse_apt_preferences_file(pref_file_p)
+    parse_preferences_file(pref_file_p)
 
 
 @pytest.mark.parametrize(
@@ -130,7 +130,7 @@ def test_parse_apt_preference_order_content(tmp_path, str_to_parse, expected_obj
 
     pref_file_p: Path = _create_apt_preferences_file(tmp_path, str_to_parse)
 
-    received_result = parse_apt_preferences_file(pref_file_p)
+    received_result = parse_preferences_file(pref_file_p)
 
     for pref in expected_result:
         pref.file_path = pref_file_p
@@ -145,7 +145,7 @@ def test_parse_apt_preference_empty_content(tmp_path):
     pref_file_p: Path = _create_apt_preferences_file(tmp_path, str_to_parse)
 
     with pytest.raises(NoPreferencesFound):
-        parse_apt_preferences_file(pref_file_p)
+        parse_preferences_file(pref_file_p)
 
 
 def _create_apt_preferences_file(tmp_path, file_content: str) -> Path:
@@ -235,7 +235,7 @@ def test_parse_apt_preference_multiple(tmp_path, str_to_parse, expected_objs):
     for pref in expected_objs:
         pref.file_path = pref_file_p
 
-    received_objs = parse_apt_preferences_file(pref_file_p)
+    received_objs = parse_preferences_file(pref_file_p)
 
     assert received_objs == expected_objs
 
@@ -258,7 +258,7 @@ def test_parse_apt_preference_e2e_multiple(e2e_multiple_entries):
         ),
     ]
 
-    received_objs = parse_apt_preferences_file(pref_file_p)
+    received_objs = parse_preferences_file(pref_file_p)
 
     assert received_objs == expected_objs
 
@@ -277,7 +277,7 @@ def test_parse_apt_preference_e2e_single(e2e_single_entry):
         )
     ]
 
-    received_objs = parse_apt_preferences_file(pref_file_p)
+    received_objs = parse_preferences_file(pref_file_p)
 
     assert received_objs == expected_objs
 
@@ -359,7 +359,7 @@ def test_parse_apt_preference_e2e_single(e2e_single_entry):
         ),
     ],
 )
-def test_find_pref_files(tmpdir, files_map, expected_prefs_files_l):
+def test_find_preferences_files(tmpdir, files_map, expected_prefs_files_l):
     def _is_expected(path_to_check) -> bool:
         name_to_check = Path(path_to_check).name
         return name_to_check in expected_prefs_files_l
@@ -369,15 +369,15 @@ def test_find_pref_files(tmpdir, files_map, expected_prefs_files_l):
 
     # process data
     with mock.patch(
-        "app.find_pref_files._get_default_pref_file_path",
+        "app.find_preferences_files._get_default_pref_file_path",
         lambda: Path(tmpdir.join("preferences")),
     ):
         # process data
         with mock.patch(
-            "app.find_pref_files._get_default_pref_dir_path",
+            "app.find_preferences_files._get_default_pref_dir_path",
             lambda: Path(tmpdir.join("preferences.d")),
         ):
-            received_results = parse_apt_preferences()
+            received_results = parse_preferences_files()
 
     received_paths = set()
 
@@ -420,7 +420,7 @@ def test_parse_apt_preference_comments(tmp_path, str_to_parse, expected_obj):
 
     pref_file_p: Path = _create_apt_preferences_file(tmp_path, str_to_parse)
 
-    received_result = parse_apt_preferences_file(pref_file_p)
+    received_result = parse_preferences_file(pref_file_p)
 
     for pref in expected_result:
         pref.file_path = pref_file_p
@@ -513,10 +513,9 @@ def test_parse_apt_preference_explanation(tmp_path, str_to_parse, expected_objs_
 
     pref_file_p: Path = _create_apt_preferences_file(tmp_path, str_to_parse)
 
-    received_result = parse_apt_preferences_file(pref_file_p)
+    received_result = parse_preferences_file(pref_file_p)
 
     for pref in expected_result:
-        if isinstance(pref, AptPreference) is True:
-            pref.file_path = pref_file_p
+        pref.file_path = pref_file_p
 
     assert received_result == expected_result
