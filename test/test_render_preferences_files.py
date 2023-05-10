@@ -3,9 +3,9 @@ from pathlib import Path
 import pytest
 
 from app.data_structures import AptPreference
-from app.render_apt_preferences import _render_field_with_explanation
-from app.render_apt_preferences import render_preference
-from app.render_apt_preferences import render_preferences_l
+from app.render_preferences_files import _render_field_with_explanation
+from app.render_preferences_files import render_preference
+from app.render_preferences_files import render_preferences_files
 
 
 @pytest.fixture
@@ -135,12 +135,12 @@ def test_render_preference_with_explanation(preference_example_with_explanation)
     assert received_s == expected_s
 
 
-def test_render_preferences_l_single_file(
+def test_render_preferences_files_single_file(
     preference_example, preference_example_with_explanation
 ):
     preferences_l = [preference_example, preference_example_with_explanation]
 
-    file_to_snippet_map = render_preferences_l(preferences_l)
+    file_to_snippet_map = render_preferences_files(preferences_l)
 
     assert len(file_to_snippet_map) == 1
 
@@ -160,7 +160,7 @@ def test_render_preferences_l_single_file(
         )
 
 
-def test_render_preferences_l_multiple_files(
+def test_render_preferences_files_multiple_files(
     preference_example, preference_example_with_explanation, tmpdir
 ):
     preferences_l = [preference_example, preference_example_with_explanation]
@@ -185,7 +185,7 @@ def test_render_preferences_l_multiple_files(
         ),
     }
 
-    file_to_snippet_map = render_preferences_l(preferences_l)
+    file_to_snippet_map = render_preferences_files(preferences_l)
 
     assert len(file_to_snippet_map) == len(expected_map)
 

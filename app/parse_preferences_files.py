@@ -13,30 +13,32 @@ from app._utils import copy_obj
 from app._utils import get_function_name
 from app._utils import get_function_parameters_names
 from app.errors import NoPreferencesFound
-from app.find_pref_files import find_pref_files
+from app.find_preferences_files import find_preferences_files
 from app._constants import LARK_GRAMMAR
 from app._constants import EXPLANATIONS_FIELD_NAME
 
 
-def parse_apt_preferences() -> typing.List[typing.Union[AptPreference, str]]:
+def parse_preferences_files() -> typing.List[typing.Union[AptPreference, str]]:
     """Find preference files.
     Transform each preference file into AptPreferences' list.
-    Merge lists (info about source file is in AptPreference).
+    Merge lists (info about source file is kept as AptPreference.file_path).
     """
-    parsed_preferences_l: typing.List[AptPreference] = []
+    all_preferences_l: typing.List[AptPreference] = []
 
-    for file_path in find_pref_files():
+    for file_path in find_preferences_files():
         try:
-            parsed_file_l = parse_apt_preferences_file(file_path)
+            local_preferences_l: typing.List[AptPreference] = parse_preferences_file(
+                file_path
+            )
         except NoPreferencesFound:
             continue
 
-        parsed_preferences_l.extend(parsed_file_l)
+        all_preferences_l.extend(local_preferences_l)
 
-    return parsed_preferences_l
+    return all_preferences_l
 
 
-def parse_apt_preferences_file(
+def parse_preferences_file(
     pref_file_path: Path,
 ) -> typing.List[typing.Union[AptPreference, str]]:
     """ Transforms preference file into AptPreferences' list. """
@@ -88,6 +90,50 @@ def _rule_is_valid(rule_l) -> bool:
     return len(rule_l) == 1 or _explanations_exist(rule_l)
 
 
+def _add_explanations_to_preference(func):
+    @functools.wraps(func)
+    def wrapped_func(_, fields_l) -> dict:
+        explanations = {}
+
+        for field_d in fields_l:
+            field_name: str = _find_field_name(field_d)
+
+            explanation_exist = field_d.get(EXPLANATIONS_FIELD_NAME) is not None
+
+            if explanation_exist is True:
+                explanations[field_name] = field_d.pop(EXPLANATIONS_FIELD_NAME)
+
+        if _kwargs_are_valid(explanations) is False:
+            raise ValueError(fields_l, explanations)
+
+        preference: AptPreference = func(_, fields_l)
+        setattr(preference, EXPLANATIONS_FIELD_NAME, explanations)
+
+        return preference
+
+    return wrapped_func
+
+
+def _find_field_name(value_d):
+    for field in value_d.keys():
+        if field != EXPLANATIONS_FIELD_NAME:
+            return field
+    raise NotImplementedError(value_d)
+
+
+def _kwargs_are_valid(kwargs) -> bool:
+    not_mapped_fields_names = set(["self", "file_path"])
+
+    mapped_fields_names: set = get_function_parameters_names(
+        AptPreference.__init__
+    ).difference(not_mapped_fields_names)
+
+    for kwarg_key in kwargs:
+        if kwarg_key in mapped_fields_names:
+            return True
+    return False
+
+
 class PreferencesTreeTransformer(Transformer):
     string = v_args(inline=True)(str)
     integer = v_args(inline=True)(int)
@@ -114,49 +160,22 @@ class PreferencesTreeTransformer(Transformer):
     #   from each other, methods names are mapped to
     #   AptPreferences.__init__ kwargs.
 
+    @_add_explanations_to_preference
     def preference(self, l) -> AptPreference:
         if len(l) == 0:
             raise NoPreferencesFound()
 
-        kwargs = {EXPLANATIONS_FIELD_NAME: {}}
+        kwargs = {}
 
-        _add_explenations_to_kwargs(l, kwargs)
+        for value_d in l:
+            field_name = _find_field_name(value_d)
 
-        kwargs_are_valid = _kwargs_are_valid(kwargs)
+            kwargs[field_name] = value_d[field_name]
 
-        if kwargs_are_valid is False:
-            raise ValueError(kwargs)
+        if _kwargs_are_valid(kwargs) is False:
+            raise ValueError(l, kwargs)
 
         return AptPreference(**kwargs)
-
-
-def _add_explenations_to_kwargs(l, kwargs):
-    for value_d in l:
-        field_name = _find_field_name(value_d)
-
-        kwargs[field_name] = value_d[field_name]
-
-        if value_d.get(EXPLANATIONS_FIELD_NAME) is not None:
-            kwargs[EXPLANATIONS_FIELD_NAME][field_name] = value_d[
-                EXPLANATIONS_FIELD_NAME
-            ]
-
-
-def _find_field_name(value_d):
-    for field in value_d.keys():
-        if field != EXPLANATIONS_FIELD_NAME:
-            return field
-    raise NotImplementedError(value_d)
-
-
-def _kwargs_are_valid(kwargs) -> bool:
-    not_mapped_fields_names = set(["self", "file_path"])
-
-    mapped_fields_names: set = get_function_parameters_names(
-        AptPreference.__init__
-    ).difference(not_mapped_fields_names)
-
-    return set(kwargs.keys()) == set(mapped_fields_names)
 
 
 def _create_lark_parser():

@@ -3,34 +3,36 @@ from unittest import mock
 
 import pytest
 
-from app.find_pref_files import is_pref_file
-from app.find_pref_files import find_pref_files
+from app.find_preferences_files import is_preference_path
+from app.find_preferences_files import find_preferences_files
 
 
 from test.utils import process_files_map
 
 
-def test_find_pref_files_no_default_preference_file():
+def test_find_preferences_files_no_default_preference_file():
     """ Default preference file is required. """
 
     not_existing_path = "/not/existing/path"
 
     with mock.patch(
-        "app.find_pref_files._APT_PREF_FILE_PATH_S",
+        "app.find_preferences_files._APT_PREF_FILE_PATH_S",
         not_existing_path,
     ):
         with pytest.raises(FileNotFoundError):
-            find_pref_files()
+            find_preferences_files()
 
 
-def test_find_pref_files_no_default_preference_dir(tmpdir):
+def test_find_preferences_files_no_default_preference_dir(tmpdir):
     """ Default preference dir is not required. """
     default_pref_file = tmpdir.join("preferences")
 
     Path(default_pref_file).touch()
 
-    with mock.patch("app.find_pref_files._APT_PREF_FILE_PATH_S", default_pref_file):
-        find_pref_files()
+    with mock.patch(
+        "app.find_preferences_files._APT_PREF_FILE_PATH_S", default_pref_file
+    ):
+        find_preferences_files()
 
 
 @pytest.mark.parametrize(
@@ -53,13 +55,13 @@ def test_find_pref_files_no_default_preference_dir(tmpdir):
         ),
     ],
 )
-def test_is_pref_file_pref_extension(tmpdir, file_name, expected_result):
+def test_is_preference_path_pref_extension(tmpdir, file_name, expected_result):
     file_p = Path(tmpdir.join(file_name))
 
     with mock.patch.object(Path, "read_text") as read_text_mock:
         read_text_mock.return_value = ""
 
-        assert is_pref_file(file_p) is expected_result
+        assert is_preference_path(file_p) is expected_result
 
 
 @pytest.mark.parametrize(
@@ -87,13 +89,13 @@ def test_is_pref_file_pref_extension(tmpdir, file_name, expected_result):
         ),
     ],
 )
-def test_is_pref_file_allowed_chars(tmpdir, file_name, expected_result):
+def test_is_preference_path_allowed_chars(tmpdir, file_name, expected_result):
     file_p = Path(tmpdir.join(file_name))
 
     with mock.patch.object(Path, "read_text") as read_text_mock:
         read_text_mock.return_value = ""
 
-        assert is_pref_file(file_p) is expected_result
+        assert is_preference_path(file_p) is expected_result
 
 
 @pytest.mark.parametrize(
@@ -137,21 +139,21 @@ def test_is_pref_file_allowed_chars(tmpdir, file_name, expected_result):
         ),
     ],
 )
-def test_find_pref_files(tmpdir, files_map, expected_prefs_files_len):
+def test_find_preferences_files(tmpdir, files_map, expected_prefs_files_len):
     # prepare testfiles
     process_files_map(files_map, tmpdir)
 
     # process data
     with mock.patch(
-        "app.find_pref_files._get_default_pref_file_path",
+        "app.find_preferences_files._get_default_pref_file_path",
         lambda: Path(tmpdir.join("preferences")),
     ):
         # process data
         with mock.patch(
-            "app.find_pref_files._get_default_pref_dir_path",
+            "app.find_preferences_files._get_default_pref_dir_path",
             lambda: Path(tmpdir.join("preferences.d")),
         ):
-            received_paths_l = find_pref_files()
+            received_paths_l = find_preferences_files()
 
     received_paths_l_len = len(received_paths_l)
 
