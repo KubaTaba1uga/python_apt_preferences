@@ -27,7 +27,7 @@ def parse_preferences_files() -> typing.List[typing.Union[AptPreference, str]]:
 
     for file_path in find_preferences_files():
         try:
-            local_preferences_l: typing.List[AptPreference] = parse_preferences_file(
+            local_preferences_l: typing.List[AptPreference] = parse_preferences_path(
                 file_path
             )
         except NoPreferencesFound:
@@ -38,7 +38,7 @@ def parse_preferences_files() -> typing.List[typing.Union[AptPreference, str]]:
     return all_preferences_l
 
 
-def parse_preferences_file(
+def parse_preferences_path(
     pref_file_path: Path,
 ) -> typing.List[typing.Union[AptPreference, str]]:
     """ Transforms preference file into AptPreferences' list. """
@@ -46,13 +46,17 @@ def parse_preferences_file(
     pref_file_content: str = read_file(pref_file_path)
 
     try:
-        preferences_l = _parser.parse(pref_file_content)
+        preferences_l = parse_preference(pref_file_content)
     except NoPreferencesFound as err:
         raise NoPreferencesFound(pref_file_path) from err
 
     _populate_preferences_paths(preferences_l, pref_file_path)
 
     return preferences_l
+
+
+def parse_preference(preference_content_s: str) -> typing.List[AptPreference]:
+    return _parser.parse(preference_content_s)
 
 
 def _populate_preferences_paths(preferences_l, file_path):
@@ -100,13 +104,16 @@ def _add_explanations_to_preference(func):
 
             explanation_exist = field_d.get(EXPLANATIONS_FIELD_NAME) is not None
 
-            if explanation_exist is True:
+            if explanation_exist:
                 explanations[field_name] = field_d.pop(EXPLANATIONS_FIELD_NAME)
 
-        if _kwargs_are_valid(explanations) is False:
+        explanations_exist = len(explanations) > 0
+
+        if explanations_exist and _kwargs_are_valid(explanations) is False:
             raise ValueError(fields_l, explanations)
 
         preference: AptPreference = func(_, fields_l)
+
         setattr(preference, EXPLANATIONS_FIELD_NAME, explanations)
 
         return preference

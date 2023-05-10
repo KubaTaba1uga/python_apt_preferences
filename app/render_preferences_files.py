@@ -69,15 +69,15 @@ def render_preference(preference: AptPreference) -> str:
 
 
 def _render_field_with_explanation(preference: AptPreference, field_name: str) -> str:
-    field_s, field_explanations = (
-        _format_snippet(field_name, getattr(preference, field_name)),
-        _render_explanations_l(preference.explanations, field_name),
-    )
+    field_s = _format_snippet(field_name, getattr(preference, field_name))
 
     results_sorted_l: list = [field_s]
 
-    if field_explanations is not None:
-        results_sorted_l = [field_explanations, field_s]
+    if len(preference.explanations) > 0:
+        field_explanations_s = _render_explanations_l(
+            preference.explanations, field_name
+        )
+        results_sorted_l = [field_explanations_s, field_s]
 
     return DELIMETER.join(results_sorted_l)
 
@@ -89,12 +89,7 @@ def _format_snippet(field_name, value) -> str:
 def _render_explanations_l(
     all_explanations_d: typing.Dict[str, typing.List[str]],
     field_name: str,
-) -> typing.Optional[str]:
-    explanations_exist = all_explanations_d.get(field_name)
-
-    if explanations_exist is False:
-        return None
-
+) -> str:
     explanations_l: typing.List[str] = all_explanations_d[field_name]
 
     explanations_snippets = (

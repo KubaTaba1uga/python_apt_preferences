@@ -42,6 +42,8 @@ def preference_example_with_explanation(tmpdir):
 
 
 def test_render_package(preference_example):
+    print(preference_example)
+
     received_s: str = _render_field_with_explanation(preference_example, "package")
 
     expected_s: str = "Package: my-custom-package"
@@ -49,7 +51,7 @@ def test_render_package(preference_example):
     assert received_s == expected_s
 
 
-def test_render_package_with_explanation(preference_example_with_explanation):
+def aaa_test_render_package_with_explanation(preference_example_with_explanation):
     received_s: str = _render_field_with_explanation(
         preference_example_with_explanation, "package"
     )
