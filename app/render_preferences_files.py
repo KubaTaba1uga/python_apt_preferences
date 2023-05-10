@@ -69,17 +69,23 @@ def render_preference(preference: AptPreference) -> str:
 
 
 def _render_field_with_explanation(preference: AptPreference, field_name: str) -> str:
-    field_s = _format_snippet(field_name, getattr(preference, field_name))
+    field_s = _render_field(preference, field_name)
 
     results_sorted_l: list = [field_s]
 
-    if len(preference.explanations) > 0:
+    explanation_exists = len(preference.explanations) > 0
+
+    if explanation_exists:
         field_explanations_s = _render_explanations_l(
             preference.explanations, field_name
         )
         results_sorted_l = [field_explanations_s, field_s]
 
     return DELIMETER.join(results_sorted_l)
+
+
+def _render_field(preference: AptPreference, field_name: str) -> str:
+    return _format_snippet(field_name, getattr(preference, field_name))
 
 
 def _format_snippet(field_name, value) -> str:
