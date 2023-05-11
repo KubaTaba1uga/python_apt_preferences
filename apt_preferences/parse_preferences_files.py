@@ -6,15 +6,13 @@ from lark import Lark
 from lark import Transformer
 from lark import v_args
 
-from apt_preferences._constants import (
-    EXPLANATIONS_FIELD_NAME as _EXPLANATIONS_FIELD_NAME,
-)
+from apt_preferences._constants import \
+    EXPLANATIONS_FIELD_NAME as _EXPLANATIONS_FIELD_NAME
 from apt_preferences._constants import LARK_GRAMMAR as _LARK_GRAMMAR
 from apt_preferences._utils import copy_obj as _copy_obj
 from apt_preferences._utils import get_function_name as _get_function_name
-from apt_preferences._utils import (
-    get_function_parameters_names as _get_function_parameters_names,
-)
+from apt_preferences._utils import \
+    get_function_parameters_names as _get_function_parameters_names
 from apt_preferences._utils import read_file as _read_file
 from apt_preferences.data_structures import AptPreference
 from apt_preferences.errors import NoPreferencesFound

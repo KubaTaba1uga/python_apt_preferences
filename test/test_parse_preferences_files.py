@@ -7,6 +7,7 @@ import pytest
 from apt_preferences.data_structures import AptPreference
 from apt_preferences.errors import NoPreferencesFound
 from apt_preferences.parse_preferences_files import parse_preferences_files
+from apt_preferences.parse_preferences_files import parse_preferences_path
 
 PREFERENCE_EXAMPLE = AptPreference(
     package="my-custom-package",
