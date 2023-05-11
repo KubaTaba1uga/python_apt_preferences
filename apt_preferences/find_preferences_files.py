@@ -7,14 +7,13 @@ import string
 import typing
 from pathlib import Path
 
-
 _APT_PREF_FILE_PATH_S: str = "/etc/apt/preferences"
 
 _APT_PREF_DIR_PATH_S: str = _APT_PREF_FILE_PATH_S + ".d"
 
 
 def find_preferences_files() -> typing.List[Path]:
-    """ Find paths to files used by APT to set up preferences. """
+    """Find paths to files used by APT to set up preferences."""
 
     pref_files_paths: typing.List[Path] = []
 
@@ -34,7 +33,7 @@ def _list_possible_pref_files():
 
 
 def _get_default_pref_file_path() -> Path:
-    """ The APT preferences file '/etc/apt/preferences'. """
+    """The APT preferences file '/etc/apt/preferences'."""
     default_pref_file = Path(_APT_PREF_FILE_PATH_S)
 
     if default_pref_file.exists() is False:
@@ -44,7 +43,7 @@ def _get_default_pref_file_path() -> Path:
 
 
 def _get_default_pref_dir_path() -> Path:
-    """ The APT preferences fragment files in the '/etc/apt/preferences.d/'."""
+    """The APT preferences fragment files in the '/etc/apt/preferences.d/'."""
     return Path(_APT_PREF_DIR_PATH_S)
 
 

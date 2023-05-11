@@ -1,14 +1,13 @@
-from unittest import mock
 from pathlib import Path
+from test.utils import process_files_map
+from unittest import mock
 
 import pytest
 
-from app.parse_preferences_files import parse_preferences_files
-from app.parse_preferences_files import parse_preferences_file
-from app.data_structures import AptPreference
-from app.errors import NoPreferencesFound
-
-from test.utils import process_files_map
+from apt_preferences.data_structures import AptPreference
+from apt_preferences.errors import NoPreferencesFound
+from apt_preferences.parse_preferences_files import parse_preferences_file
+from apt_preferences.parse_preferences_files import parse_preferences_files
 
 PREFERENCE_EXAMPLE = AptPreference(
     package="my-custom-package",
@@ -271,9 +270,7 @@ def test_parse_apt_preference_e2e_single(e2e_single_entry):
             package="my-custom-package",
             pin="origin my.custom.repo.url",
             pin_priority=1,
-            file_path=Path(
-                "/home/taba1uga/Github/python_apt_preferences/test/test_files/my-custom-repo-single"
-            ),
+            file_path=e2e_single_entry,
         )
     ]
 
@@ -369,12 +366,12 @@ def test_find_preferences_files(tmpdir, files_map, expected_prefs_files_l):
 
     # process data
     with mock.patch(
-        "app.find_preferences_files._get_default_pref_file_path",
+        "apt_preferences.find_preferences_files._get_default_pref_file_path",
         lambda: Path(tmpdir.join("preferences")),
     ):
         # process data
         with mock.patch(
-            "app.find_preferences_files._get_default_pref_dir_path",
+            "apt_preferences.find_preferences_files._get_default_pref_dir_path",
             lambda: Path(tmpdir.join("preferences.d")),
         ):
             received_results = parse_preferences_files()
