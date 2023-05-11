@@ -1,24 +1,27 @@
-import copy
-import typing
 import functools
+import typing
 from pathlib import Path
 
 from lark import Lark
 from lark import Transformer
 from lark import v_args
 
-from app.data_structures import AptPreference
-from app._utils import read_file
-from app._utils import copy_obj
-from app._utils import get_function_name
-from app._utils import get_function_parameters_names
-from app.errors import NoPreferencesFound
-from app.find_preferences_files import find_preferences_files
-from app._constants import LARK_GRAMMAR
-from app._constants import EXPLANATIONS_FIELD_NAME
+from apt_preferences._constants import (
+    EXPLANATIONS_FIELD_NAME as _EXPLANATIONS_FIELD_NAME,
+)
+from apt_preferences._constants import LARK_GRAMMAR as _LARK_GRAMMAR
+from apt_preferences._utils import copy_obj as _copy_obj
+from apt_preferences._utils import get_function_name as _get_function_name
+from apt_preferences._utils import (
+    get_function_parameters_names as _get_function_parameters_names,
+)
+from apt_preferences._utils import read_file as _read_file
+from apt_preferences.data_structures import AptPreference
+from apt_preferences.errors import NoPreferencesFound
+from apt_preferences.find_preferences_files import find_preferences_files
 
 
-def parse_preferences_files() -> typing.List[typing.Union[AptPreference, str]]:
+def parse_preferences_files() -> typing.List[AptPreference]:
     """Find preference files.
     Transform each preference file into AptPreferences' list.
     Merge lists (info about source file is kept as AptPreference.file_path).
@@ -40,10 +43,10 @@ def parse_preferences_files() -> typing.List[typing.Union[AptPreference, str]]:
 
 def parse_preferences_path(
     pref_file_path: Path,
-) -> typing.List[typing.Union[AptPreference, str]]:
-    """ Transforms preference file into AptPreferences' list. """
+) -> typing.List[AptPreference]:
+    """Transforms preference file into AptPreferences' list."""
 
-    pref_file_content: str = read_file(pref_file_path)
+    pref_file_content: str = _read_file(pref_file_path)
 
     try:
         preferences_l = parse_preference(pref_file_content)
@@ -61,7 +64,7 @@ def parse_preference(preference_content_s: str) -> typing.List[AptPreference]:
 
 def _populate_preferences_paths(preferences_l, file_path):
     for preference in preferences_l:
-        preference.file_path: Path = copy_obj(file_path)
+        preference.file_path = _copy_obj(file_path)
 
 
 def _add_explanations_to_rule(func):
@@ -79,7 +82,7 @@ def _add_explanations_to_rule(func):
         func_result: dict = func(_, rule_value)
 
         if explanations_exist is True:
-            func_result[EXPLANATIONS_FIELD_NAME] = rule_l.pop()
+            func_result[_EXPLANATIONS_FIELD_NAME] = rule_l.pop()
 
         return func_result
 
@@ -96,16 +99,16 @@ def _rule_is_valid(rule_l) -> bool:
 
 def _add_explanations_to_preference(func):
     @functools.wraps(func)
-    def wrapped_func(_, fields_l) -> dict:
+    def wrapped_func(_, fields_l) -> AptPreference:
         explanations = {}
 
         for field_d in fields_l:
             field_name: str = _find_field_name(field_d)
 
-            explanation_exist = field_d.get(EXPLANATIONS_FIELD_NAME) is not None
+            explanation_exist = field_d.get(_EXPLANATIONS_FIELD_NAME) is not None
 
             if explanation_exist:
-                explanations[field_name] = field_d.pop(EXPLANATIONS_FIELD_NAME)
+                explanations[field_name] = field_d.pop(_EXPLANATIONS_FIELD_NAME)
 
         explanations_exist = len(explanations) > 0
 
@@ -114,7 +117,7 @@ def _add_explanations_to_preference(func):
 
         preference: AptPreference = func(_, fields_l)
 
-        setattr(preference, EXPLANATIONS_FIELD_NAME, explanations)
+        setattr(preference, _EXPLANATIONS_FIELD_NAME, explanations)
 
         return preference
 
@@ -123,7 +126,7 @@ def _add_explanations_to_preference(func):
 
 def _find_field_name(value_d):
     for field in value_d.keys():
-        if field != EXPLANATIONS_FIELD_NAME:
+        if field != _EXPLANATIONS_FIELD_NAME:
             return field
     raise NotImplementedError(value_d)
 
@@ -131,7 +134,7 @@ def _find_field_name(value_d):
 def _kwargs_are_valid(kwargs) -> bool:
     not_mapped_fields_names = set(["self", "file_path"])
 
-    mapped_fields_names: set = get_function_parameters_names(
+    mapped_fields_names: set = _get_function_parameters_names(
         AptPreference.__init__
     ).difference(not_mapped_fields_names)
 
@@ -151,15 +154,15 @@ class PreferencesTreeTransformer(Transformer):
 
     @_add_explanations_to_rule
     def pin(self, s) -> typing.Dict[str, str]:
-        return {get_function_name(): s}
+        return {_get_function_name(): s}
 
     @_add_explanations_to_rule
     def package(self, s) -> typing.Dict[str, str]:
-        return {get_function_name(): s}
+        return {_get_function_name(): s}
 
     @_add_explanations_to_rule
     def pin_priority(self, i) -> typing.Dict[str, int]:
-        return {get_function_name(): i}
+        return {_get_function_name(): i}
 
     # While order is unimportant for apt, Transformer
     #   creates python list for each rule (for which
@@ -168,26 +171,26 @@ class PreferencesTreeTransformer(Transformer):
     #   AptPreferences.__init__ kwargs.
 
     @_add_explanations_to_preference
-    def preference(self, l) -> AptPreference:
-        if len(l) == 0:
+    def preference(self, rule_l) -> AptPreference:
+        if len(rule_l) == 0:
             raise NoPreferencesFound()
 
         kwargs = {}
 
-        for value_d in l:
+        for value_d in rule_l:
             field_name = _find_field_name(value_d)
 
             kwargs[field_name] = value_d[field_name]
 
         if _kwargs_are_valid(kwargs) is False:
-            raise ValueError(l, kwargs)
+            raise ValueError(rule_l, kwargs)
 
         return AptPreference(**kwargs)
 
 
 def _create_lark_parser():
     return Lark(
-        LARK_GRAMMAR,
+        _LARK_GRAMMAR,
         parser="lalr",
         lexer="contextual",  # <- contextual lexer is required to resolve priorities
         propagate_positions=False,  # <- improve speed
