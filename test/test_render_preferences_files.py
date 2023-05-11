@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from app.data_structures import AptPreference
-from app.render_preferences_files import _render_field_with_explanation
-from app.render_preferences_files import render_preference
-from app.render_preferences_files import render_preferences_files
+from apt_preferences.data_structures import AptPreference
+from apt_preferences.render_preferences_files import _render_field_with_explanation
+from apt_preferences.render_preferences_files import render_preference
+from apt_preferences.render_preferences_files import render_preferences_files
 
 
 @pytest.fixture
