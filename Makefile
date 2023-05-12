@@ -28,10 +28,10 @@ venv:
 
 
 install: 
-	pip install -e .
+	pip install .
 
 install-dev: 
-	pip install -e .[DEV]
+	pip install .[dev]
 
 clean-venv: rm -rf $(venv_name)
 
