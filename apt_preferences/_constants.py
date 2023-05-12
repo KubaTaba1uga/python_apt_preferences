@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app._utils import read_file
+from apt_preferences._utils import read_file
 
 EXPLANATIONS_FIELD_NAME = "explanations"
 

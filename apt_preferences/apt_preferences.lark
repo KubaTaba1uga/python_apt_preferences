@@ -1,6 +1,6 @@
 ?start: preferences_l
 
-// `.1` resolves `Terminal($END)` conflict with `preference`
+// `.1` resolves `Terminal($END)` conflicts
 preferences_l.1: preference+
 
 preference: | // order is not important for apt

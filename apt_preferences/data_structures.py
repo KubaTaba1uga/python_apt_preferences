@@ -1,11 +1,12 @@
 import typing
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
 
 
 @dataclass
 class AptPreference:
-    """Represents preference entry. """
+    """Represents preference entry."""
 
     FILE_PATH_NONE_FIELD_NAME = "no path"
 

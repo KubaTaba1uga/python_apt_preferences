@@ -1,11 +1,10 @@
 import typing
-import functools
 
-from app.data_structures import AptPreference
-from app._constants import DELIMETER
-from app._constants import EXPLANATIONS_FIELD_NAME
-from app._constants import FIELDS_TO_RENDER
-from app._constants import FIELD_TO_SNIPPET_MAP
+from apt_preferences._constants import DELIMETER
+from apt_preferences._constants import EXPLANATIONS_FIELD_NAME
+from apt_preferences._constants import FIELD_TO_SNIPPET_MAP
+from apt_preferences._constants import FIELDS_TO_RENDER
+from apt_preferences.data_structures import AptPreference
 
 
 def render_preferences_files(
@@ -39,7 +38,6 @@ def _init_file_to_snippet_map(
     file_to_snippet_map: typing.Dict[str, typing.List[str]] = {}
 
     for preference in preferences_l:
-
         rendered_preference: str = render_preference(preference)
 
         file_path_s: str = (
@@ -57,7 +55,6 @@ def _init_file_to_snippet_map(
 
 
 def render_preference(preference: AptPreference) -> str:
-
     results_l: typing.List[str] = []
 
     for field_name in FIELDS_TO_RENDER:
@@ -69,17 +66,23 @@ def render_preference(preference: AptPreference) -> str:
 
 
 def _render_field_with_explanation(preference: AptPreference, field_name: str) -> str:
-    field_s, field_explanations = (
-        _format_snippet(field_name, getattr(preference, field_name)),
-        _render_explanations_l(preference.explanations, field_name),
-    )
+    field_s = _render_field(preference, field_name)
 
     results_sorted_l: list = [field_s]
 
-    if field_explanations is not None:
-        results_sorted_l = [field_explanations, field_s]
+    explanation_exists = len(preference.explanations) > 0
+
+    if explanation_exists:
+        field_explanations_s = _render_explanations_l(
+            preference.explanations, field_name
+        )
+        results_sorted_l = [field_explanations_s, field_s]
 
     return DELIMETER.join(results_sorted_l)
+
+
+def _render_field(preference: AptPreference, field_name: str) -> str:
+    return _format_snippet(field_name, getattr(preference, field_name))
 
 
 def _format_snippet(field_name, value) -> str:
@@ -90,9 +93,9 @@ def _render_explanations_l(
     all_explanations_d: typing.Dict[str, typing.List[str]],
     field_name: str,
 ) -> typing.Optional[str]:
-    explanations_exist = all_explanations_d.get(field_name)
+    explanations_exist = len(all_explanations_d.get(field_name, [])) > 0
 
-    if explanations_exist is False:
+    if not explanations_exist:
         return None
 
     explanations_l: typing.List[str] = all_explanations_d[field_name]
