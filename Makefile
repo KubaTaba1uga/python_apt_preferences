@@ -13,7 +13,7 @@ help:
 	@echo "clean-git - remove ignored and not ignored files"
 
 lint:
-	python -m ruff $(sources)
+	python -m ruff --fix $(sources)
 	python -m mypy $(sources)
 
 format:
@@ -24,16 +24,19 @@ tests:
 	python -m pytest -vv
 
 venv:
-	clean-venv: rm -rf $(venv_name)
-
+	python3 -m virtualenv $(venv_name)
 
 install: 
-	pip install -e .
+	pip install .
 
 install-dev: 
-	pip install -e .[DEV]
+	pip install .[dev]
 
-clean-venv: rm -rf $(venv_name)
+install-test: 
+	pip install .[test]
+
+clean-venv: 
+	rm -rf $(venv_name)
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
