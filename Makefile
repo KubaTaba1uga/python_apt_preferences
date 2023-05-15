@@ -2,18 +2,19 @@ venv_name := .venv
 sources := apt_preferences test
 
 help:
-	@echo "lint - check style with ruff"
+	@echo "lint - check style with ruff and mypy"
 	@echo "format - format style with black and isort"
 	@echo "tests - run tests quickly with pytest"
 	@echo "venv - creates virtual environment"
 	@echo "install - install requirements"
 	@echo "install-dev - install dev requirements"
+	@echo "install-test - install test requirements"	
 	@echo "clean - remove venv"	
 	@echo "clean-pyc - remove Python file artifacts"
 	@echo "clean-git - remove ignored and not ignored files"
 
 lint:
-	python -m ruff --fix $(sources)
+	python -m ruff $(sources)
 	python -m mypy $(sources)
 
 format:
@@ -35,7 +36,7 @@ install-dev:
 install-test: 
 	pip install .[test]
 
-clean-venv: 
+clean: 
 	rm -rf $(venv_name)
 
 clean-pyc:
