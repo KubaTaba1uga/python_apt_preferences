@@ -42,6 +42,19 @@ Run example
 python examples/read_preferences.py
 ```
 
+### Features:
+   - Parse apt preferences' files into Python objects list.
+   - Generate new apt preferences' files based on Python objects list.
+
+### Planned features:
+   - Support multiple pins in single preference.
+
+### Limitations:
+
+   - If a line starts with `#` it will be ignored by the parser.
+   - The generator doesn't allow creating lines starting with `#`.
+
+
 ## Credits
 
 Me, Myself and I.
@@ -75,16 +88,5 @@ SOFTWARE.
 ---
 
 
-## Features:
-   - Parse apt preferences' files into Python objects list.
-   - Generate new apt preferences' files based on Python objects list.
-
-## Planned features:
-   - Support multiple pins in single preference.
-
-## Limitations:
-
-   - If a line starts with `#` it will be ignored by the parser.
-   - The generator doesn't allow creating lines starting with `#`.
 
 
