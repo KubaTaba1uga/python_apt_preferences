@@ -9,9 +9,7 @@ If regexes are used in packages names then it's even harder. This package along 
 
 And I wanted to learn `LARK` so that is also a big pron of the project.
 
-## Table of Contents (Optional)
-
-If your README is long, add a table of contents to make it easy for users to find what they need.
+## Table of Contents
 
 - [Installation](#installation)
 - [Usage](#usage)
