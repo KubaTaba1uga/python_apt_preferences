@@ -5,7 +5,7 @@
 Python package to modify apt preferences files in line with https://manpages.debian.org/buster/apt/apt_preferences.5.en.html.
 
 I don't like using awk and sed for updating preferences cause it's got messier the bigger amount of preferences is connected to a package.
-If regexes are used in packages names then it's even harder. This package along with re should make more complex preferences scenarios easy to automate. 
+If regexes are used in packages names then it's even harder. This package along with `re` should make more complex preferences scenarios easy to automate. 
 
 And i wanted to learn LARK so that is also a big pron of the project.
 
