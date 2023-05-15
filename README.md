@@ -82,9 +82,9 @@ SOFTWARE.
 ## Planned features:
    - Support multiple pins in single preference.
 
-## Design decisions:
+## Limitations:
 
-   If a line starts with `#` it will be ignored by the parser.
-   The generator doesn't allow creating lines starting with `#`.
+   - If a line starts with `#` it will be ignored by the parser.
+   - The generator doesn't allow creating lines starting with `#`.
 
 
