@@ -35,7 +35,24 @@ make install
 
 ## Usage
 
-Look into `/examples` directory to find some common usage examples.
+```
+from apt_preferences.data_structures import AptPreference
+from apt_preferences.render_preferences_files import render_preferences_files
+
+# lets assume this is a parsed preferences file
+my_prefs_l = [AptPreference(package="*", pin="release n=jammy", pin_priority=700, file_path="/etc/apt/preferences", explanations={})]
+
+# we would like to change pin priority for one of file preferences
+my_pref = my_prefs_l[0]
+
+# pin priority is modified
+my_pref.pin_priority = 100
+
+# preference with modified pin priority is saved to the file
+render_preferences_files(my_prefs_l)
+```
+
+For more examples look into `/examples` directory.
 
 Run example
 ```
