@@ -35,7 +35,6 @@ make install
 
 ## Usage
 
-### Simple example
 ```
 from apt_preferences.data_structures import AptPreference
 from apt_preferences.render_preferences_files import render_preferences_files
