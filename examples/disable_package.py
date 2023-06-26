@@ -30,7 +30,7 @@ def delete_related_preferences(packages, preferences):
     for _ in preferences:
         preference = preferences[i]
 
-        if preference.name in packages:
+        if preference.package in packages:
             # This package recognition is very basic.
             # Add regexes handling, to make it advanced.
 

@@ -13,7 +13,7 @@ LARK_GRAMMAR = read_file(LARK_GRAMMAR_PATH)
 FIELD_TO_SNIPPET_MAP = {
     "package": "Package: {value}",
     "pin": "Pin: {value}",
-    "pin_priority": "Pin priority: {value}",
+    "pin_priority": "Pin-Priority: {value}",
     EXPLANATIONS_FIELD_NAME: "Explanation: {value}",
 }
 
