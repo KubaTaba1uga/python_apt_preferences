@@ -65,6 +65,7 @@ python examples/read_preferences.py
 
 ### Planned features:
    - Support multiple pins in single preference.
+   - Comment out objects via AptPreference method.
 
 ### Limitations:
 
