@@ -18,6 +18,13 @@ And I wanted to learn `LARK` so that is also a big pron of the project.
 
 ## Installation
 
+### Via PIP
+```
+pip install apt_preferences
+```
+
+### Manual
+
 Create virtual environment
 ```
 make venv
