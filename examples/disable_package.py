@@ -1,5 +1,5 @@
 # Example usage:
-#    python disable_packages.py ncurses ncurses-bin ncurses-term
+#    python disable_package.py ncurses ncurses-bin ncurses-term
 
 # Example description:
 #  Create preference file which disables upgrade for specified packages.
