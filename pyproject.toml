@@ -3,17 +3,21 @@ name = "apt_preferences"
 authors = [
  {name = "Jakub Buczyński", email = "jakub@buczynski.net.pl"},
 ]
-description = "Manage apt preferences via python module."
+description = "Manage apt preferences"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
 ]
 version = "0.0.1"
 dependencies = [
     "lark==1.1.5",
 ]
+
+[project.urls]
+"Homepage" = "https://github.com/KubaTaba1uga/python_apt_preferences"
 
 
 [tool.setuptools]
