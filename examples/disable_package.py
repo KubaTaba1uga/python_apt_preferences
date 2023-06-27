@@ -31,9 +31,6 @@ def delete_related_preferences(packages, preferences):
         preference = preferences[i]
 
         if preference.package in packages:
-            # This package recognition is very basic.
-            # Add regexes handling, to make it advanced.
-
             preferences.pop(i)
         else:
             i += 1
@@ -45,7 +42,9 @@ def main():
     delete_related_preferences(packages, preferences)
 
     for package in packages:
-        not_upgradable_package = AptPreference(package, pin="*", pin_priority=1)
+        not_upgradable_package = AptPreference(
+            package, pin='origin "*"', pin_priority=1
+        )
 
         preferences.append(not_upgradable_package)
 
