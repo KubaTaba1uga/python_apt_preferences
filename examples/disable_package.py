@@ -46,6 +46,7 @@ def main():
             package, pin='origin "*"', pin_priority=1
         )
 
+
         preferences.append(not_upgradable_package)
 
     new_preferences_map = render_preferences_files(preferences, False)
